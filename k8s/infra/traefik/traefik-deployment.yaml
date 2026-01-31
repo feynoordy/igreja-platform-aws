@@ -19,9 +19,21 @@ spec:
           image: traefik:v2.11
           args:
             - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
             - "--providers.kubernetescrd"
             - "--providers.kubernetesingress"
-            - "--api.insecure=true"
+            - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+            - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+            - "--certificatesresolvers.letsencrypt.acme.email=admin@ministerionovotempo.com.br"
+            - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
           ports:
             - name: web
               containerPort: 80
+            - name: websecure
+              containerPort: 443
+          volumeMounts:
+            - name: acme
+              mountPath: /data
+      volumes:
+        - name: acme
+          emptyDir: {}
