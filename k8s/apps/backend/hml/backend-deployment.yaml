@@ -13,22 +13,14 @@ spec:
       labels:
         app: backend-hml
     spec:
+      imagePullSecrets:
+        - name: ecr-pull-secret   # 👈 LINHA CRÍTICA
       containers:
         - name: backend
-          image: 112367726434.dkr.ecr.us-east-1.amazonaws.com/igreja-backend:dev
+          image: 112367726434.dkr.ecr.us-east-1.amazonaws.com/igreja-backend:hml
           imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
           env:
             - name: PORT
               value: "3000"
-            - name: DB_HOST
-              value: postgres
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_NAME
-              value: igreja
-            - name: DB_USER
-              value: igreja
-            - name: DB_PASSWORD
-              value: igreja123
-          ports:
-            - containerPort: 3000

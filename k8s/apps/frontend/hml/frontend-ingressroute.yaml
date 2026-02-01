@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: frontend-hml
+  namespace: igreja-hml
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`frontend-hml.ministerionovotempo.app.br`)
+      kind: Rule
+      services:
+        - name: frontend-hml
+          port: 80
+

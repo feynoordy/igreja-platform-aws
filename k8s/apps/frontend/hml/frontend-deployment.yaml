@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-hml
+  namespace: igreja-hml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-hml
+  template:
+    metadata:
+      labels:
+        app: frontend-hml
+    spec:
+      imagePullSecrets:
+        - name: ecr-pull-secret
+      containers:
+        - name: frontend
+          image: 112367726434.dkr.ecr.us-east-1.amazonaws.com/igreja-frontend:hml
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80

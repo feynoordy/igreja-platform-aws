@@ -1,47 +1,20 @@
-igreja-platform-aws/
-├── terraform/
-│   ├── environments/
-│   │   ├── dev/
-│   │   └── prod/
-│   ├── modules/
-│   │   ├── network/        # VPC, Subnet, IGW, Route Tables
-│   │   ├── compute/        # EC2 (K3s nodes)
-│   │   └── security/       # SG, IAM
-│   ├── backend.tf
-│   ├── providers.tf
-│   └── variables.tf
-│
-├── k3s/
-│   ├── install.sh          # bootstrap k3s
-│   └── manifests/
-│
-├── argocd/
-│   ├── install.yaml
-│   └── applications/
-│
-├── apps/
-│   └── igreja-platform/    # (seu projeto atual)
-│
-└── README.md
 # Igreja Platform AWS
 
-Projeto de **Platform Engineering / DevOps** que implementa uma plataforma Kubernetes
-realista em **AWS**, utilizando **K3s**, **Terraform**, **GitOps (ArgoCD)** e
-observabilidade completa.
+Projeto de **Platform Engineering / DevOps** que implementa uma plataforma Kubernetes realista na AWS, utilizando **K3s**, **Terraform**, **Docker**, **Traefik** e práticas modernas de deploy.
 
-Este repositório representa um ambiente próximo de produção, focado em boas
-práticas de infraestrutura, automação e confiabilidade.
+Este repositório representa um ambiente próximo de produção, com foco em **infraestrutura como código**, **containerização**, **networking Kubernetes** e **boas práticas operacionais**.
 
 ---
 
-## 🎯 Objetivos
+## 🎯 Objetivos do Projeto
 
-- Provisionar infraestrutura na AWS de forma declarativa (Terraform)
-- Criar cluster Kubernetes leve com **K3s**
-- Gerenciar aplicações via **GitOps (ArgoCD)**
-- Suportar múltiplos ambientes (dev / prod)
-- Integrar observabilidade (Prometheus + Grafana)
-- Preparar base para escalabilidade e automação contínua
+- Provisionar infraestrutura AWS de forma declarativa
+- Criar um cluster Kubernetes leve com K3s
+- Containerizar aplicações frontend e backend
+- Expor aplicações via Traefik (Ingress Controller)
+- Suportar múltiplos ambientes (dev / hml / prod)
+- Preparar base para GitOps (ArgoCD)
+- Simular cenários reais de produção
 
 ---
 
@@ -53,86 +26,130 @@ Terraform
   ├── AWS VPC
   │     ├── Subnet pública
   │     ├── Security Groups
-  │     └── EC2
+  │     └── EC2 (Amazon Linux)
   │
   ▼
-EC2 (Amazon Linux)
+EC2
   └── K3s (Kubernetes)
-        ├── ArgoCD (GitOps)
-        ├── Backend (Node.js)
-        ├── PostgreSQL
-        └── Observabilidade
+        ├── Traefik (Ingress Controller)
+        ├── Frontend (React + Nginx)
+        ├── Backend (Node.js + Express)
+        └── PostgreSQL (dev)
 🛠️ Stack Tecnológica
 
 Cloud: AWS
 
 Infra as Code: Terraform
 
+Container Runtime: Docker / containerd
+
 Kubernetes: K3s
 
-GitOps: ArgoCD
+Ingress Controller: Traefik
+
+Frontend: React + Vite + Nginx
 
 Backend: Node.js + Express
 
-Banco: PostgreSQL
+Banco de Dados: PostgreSQL
 
-Observabilidade: Prometheus + Grafana
-terraform/        # Infraestrutura AWS
-k3s/              # Bootstrap do cluster
-argocd/           # GitOps e Applications
-apps/             # Aplicações Kubernetes
-🚀 Fluxo de Deploy
+Registry: AWS ECR
 
-Terraform provisiona a infraestrutura AWS
+igreja-platform-aws/
+├── terraform/        # Infraestrutura AWS (VPC, EC2, SG, etc)
+├── k3s/              # Bootstrap do cluster K3s
+├── k8s/              # Manifests Kubernetes
+│   └── apps/
+│       ├── frontend/
+│       │   └── hml/
+│       └── backend/
+│           └── hml/
+├── frontend/         # Código do frontend (React)
+├── backend/          # Código do backend (Node.js)
+├── logs/             # Logs locais
+└── README.md
 
-EC2 sobe com K3s instalado automaticamente
+🚀 Fluxo de Deploy (HML)
 
-ArgoCD é instalado no cluster
+Infraestrutura provisionada na AWS
 
-ArgoCD sincroniza aplicações a partir do Git
+EC2 sobe com K3s instalado
 
-Aplicações são implantadas de forma declarativa
+Traefik é iniciado como Ingress Controller
 
-📊 Observabilidade
+Imagens Docker são buildadas localmente
 
-Prometheus coleta métricas do cluster e aplicações
+Imagens são publicadas no AWS ECR
 
-Grafana exibe dashboards por namespace e workload
+Manifests Kubernetes aplicados no namespace igreja-hml
 
-Base preparada para alertas futuros
+Aplicações expostas via Traefik
 
-🔐 Segurança
+🌐 Endpoints (HML)
+Frontend
+http://frontend-hml.ministerionovotempo.app.br
 
-Security Groups com princípio de menor privilégio
+Backend
 
-Comunicação interna via Kubernetes Services
+http://backend-hml.ministerionovotempo.app.br
 
-Secrets gerenciados via Kubernetes Secrets
+Healthcheck Backend
 
-Sem exposição externa desnecessária
+GET /health
+→ { "status": "ok" }
+
+🧪 Testes Importantes
+Teste interno no cluster
+
+kubectl run tmp-curl \
+  -n igreja-hml \
+  --rm -it \
+  --image=busybox:1.36 \
+  --restart=Never \
+  -- wget -qO- http://backend-hml:80/health
+
+Teste via NodePort (EC2)
+
+curl -H "Host: backend-hml.ministerionovotempo.app.br" http://127.0.0.1:30080/health
+
+Teste externo (máquina local)
+
+curl http://backend-hml.ministerionovotempo.app.br/health
+
+🔐 Observações de Rede (Importante)
+
+A EC2 não consegue acessar o próprio IP público (hairpin NAT da AWS)
+
+Testes via curl no IP público devem ser feitos fora da instância
+
+Isso é comportamento esperado da AWS, não erro de configuração
 
 🧪 Status do Projeto
 
- Infra AWS via Terraform
+ Infra AWS provisionada
 
- EC2 funcional
+ K3s funcional
 
- K3s configurado
+ Traefik configurado
 
- ArgoCD ativo
+ Frontend HML funcional
 
- Aplicações migradas
+ Backend HML funcional
 
- Observabilidade integrada
+ Integração frontend ↔ backend
+
+ ArgoCD (próxima fase)
+
+ Observabilidade
+
+ HTTPS completo (443 exposto)
 
 👨‍💻 Autor
 
 Fagner dos Santos Silva
-Projeto focado em DevOps, Platform Engineering e Cloud Native
+
+Projeto focado em DevOps, Platform Engineering e Cloud Native, com abordagem prática e próxima da realidade de produção.
 
 🏁 Considerações Finais
 
-Este projeto demonstra a construção de uma plataforma Kubernetes moderna,
-seguindo práticas usadas em ambientes de produção, desde a infraestrutura até
-o deploy automatizado das aplicações.
-
+Este projeto demonstra a construção de uma plataforma Kubernetes moderna na AWS, passando por infraestrutura, containerização, networking, exposição de serviços e troubleshooting real — exatamente como ocorre em ambientes profissionais.
