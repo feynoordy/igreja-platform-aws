@@ -9,6 +9,7 @@ spec:
   routes:
     - match: Host(`backend-hml.ministerionovotempo.app.br`)
       kind: Rule
+      priority: 10
       services:
         - name: backend-hml
           port: 80
