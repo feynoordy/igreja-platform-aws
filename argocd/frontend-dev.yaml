@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/feynoordy/igreja-platform-aws.git
     targetRevision: dev
-    path: k8s/overlays/dev/frontend
+    path: k8s/apps/frontend/dev
 
   destination:
     server: https://kubernetes.default.svc
