@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+ARG VITE_APP_ENV
+ARG VITE_API_URL
+ARG VITE_APP_TITLE
+
+ENV VITE_APP_ENV=$VITE_APP_ENV
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_APP_TITLE=$VITE_APP_TITLE
+
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "run", "preview"]

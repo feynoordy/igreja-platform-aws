@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: backend-dev-https
+  namespace: igreja-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`backend-dev.ministerionovotempo.app.br`)
+      kind: Rule
+      middlewares:
+        - name: redirect-https
+      services:
+        - name: backend
+          port: 80
+  tls:
+    certResolver: letsencrypt
