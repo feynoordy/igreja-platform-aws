@@ -20,4 +20,4 @@ spec:
           image: 112367726434.dkr.ecr.us-east-1.amazonaws.com/igreja-frontend:dev
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 3000
